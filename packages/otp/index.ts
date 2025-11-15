@@ -4,14 +4,18 @@ import handlebars from "handlebars";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import path from "path";
+import { Resend } from "resend";
+
+const resend = new Resend("re_gjwjcnxp_4CeYXdVNQiZLQJvap3Yydc2q");
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // for sending otps on phone number
-const email = "admin@random.com";
-const customerId = "C-83621cccF4FB084F8";
-const key ="TWFjcm8yM8A7Ag==";
+const email = "naukriscore@gmail.com";
+const customerId = "C-E4F23A6619C840E";
+const key = "TmF1a3Jpc2NvcmVAMjAyNg==";
 
 class OtpStore {
   // instance for getting a singeleton everytime
@@ -37,77 +41,122 @@ class OtpStore {
     return OtpStore.instance;
   }
 
-  // email things for sending and verifying otps
-  public async generateOtpForEmail(
-    input: string,
-    userName: string
-  ): Promise<boolean> {
+  // email things for sending and verifying otps ( using nodemailer )
+  // public async generateOtpForEmail(
+  //   input: string,
+  //   userName: string
+  // ): Promise<boolean> {
+  //   try {
+  //     const otp = await this.saveAndReturnOtp(input, 5);
+  //     const name = this.capitalize(userName);
+
+  //     try {
+  //       // nodemailer code
+  //       const transporter = nodemailer.createTransport({
+  //         service: "gmail",
+  //         auth: {
+  //           user: "random@gmail.com",
+  //           pass: "kmlz rdak 2222 1111",
+  //         },
+  //       });
+
+  //       const readHTMLTemplate = async (
+  //         path: string,
+  //         callback: (err: any | null, html?: any) => Promise<boolean>
+  //       ): Promise<boolean> => {
+  //         return new Promise<boolean>((resolve) => {
+  //           fs.readFile(path, { encoding: "utf-8" }, async (err, html) => {
+  //             if (err) {
+  //               resolve(await callback(err));
+  //             }
+  //             resolve(await callback(null, html));
+  //           });
+  //         });
+  //       };
+
+  //       const finalRes = await readHTMLTemplate(
+  //         __dirname + "/email.html",
+  //         async (err, html) => {
+  //           if (err) {
+  //             console.error("Error reading HTML template:", err);
+  //             return false;
+  //           }
+
+  //           const template = handlebars.compile(html);
+
+  //           const replacements = {
+  //             name,
+  //             otp,
+  //           };
+
+  //           const htmlToSend = template(replacements);
+
+  //           const info = await transporter.sendMail({
+  //             from: '"Naukri Score" <random@gmail.com>',
+  //             to: input,
+  //             subject: "Test 🙏",
+  //             text: "hello", // plain‑text body,
+  //             html: htmlToSend,
+  //           });
+
+  //           console.log("Message sent:", info.messageId);
+  //           return true;
+  //         }
+  //       );
+  //       return finalRes;
+  //     } catch (emailError) {
+  //       console.log(emailError);
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // }
+
+  // email things for sending and verifying otps ( using resend )
+  public async generateOtpForEmail(input: string, userName: string): Promise<boolean> {
     try {
-      const otp = await this.saveAndReturnOtp(input, 5);
+      const otp = await this.saveAndReturnOtp(input, 5); // your existing OTP logic
       const name = this.capitalize(userName);
 
-      try {
-        // nodemailer code
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: "random@gmail.com",
-            pass: "kmlz rdak 2222 1111",
-          },
-        });
-
-        const readHTMLTemplate = async (
-          path: string,
-          callback: (err: any | null, html?: any) => Promise<boolean>
-        ): Promise<boolean> => {
-          return new Promise<boolean>((resolve) => {
-            fs.readFile(path, { encoding: "utf-8" }, async (err, html) => {
-              if (err) {
-                resolve(await callback(err));
-              }
-              resolve(await callback(null, html));
-            });
+      // Load email HTML
+      const readHTMLTemplate = (path: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          fs.readFile(path, { encoding: "utf-8" }, (err, html) => {
+            if (err) reject(err);
+            else resolve(html);
           });
-        };
+        });
+      };
 
-        const finalRes = await readHTMLTemplate(
-          __dirname + "/email.html",
-          async (err, html) => {
-            if (err) {
-              console.error("Error reading HTML template:", err);
-              return false;
-            }
+      const html = await readHTMLTemplate(__dirname + "/email.html");
 
-            const template = handlebars.compile(html);
+      // Compile template with Handlebars
+      const template = handlebars.compile(html);
+      const htmlToSend = template({ name, otp });
 
-            const replacements = {
-              name,
-              otp,
-            };
+      // Send via Resend
+      const { data, error } = await resend.emails.send({
+        from: "NaukriScore no-reply@naukriscore.com>", // use your domain
+        to: input,
+        subject: "Your NaukriScore Verification OTP",
+        html: htmlToSend,
+      });
 
-            const htmlToSend = template(replacements);
-
-            const info = await transporter.sendMail({
-              from: '"Naukri Score" <random@gmail.com>',
-              to: input,
-              subject: "Test 🙏",
-              text: "hello", // plain‑text body,
-              html: htmlToSend,
-            });
-
-            console.log("Message sent:", info.messageId);
-            return true;
-          }
-        );
-        return finalRes;
-      } catch (emailError) {
-        console.log(emailError);
+      if (error) {
+        console.error("Resend Error:", error);
         return false;
       }
-    } catch (error) {
+
+      console.log("Email sent:", data?.id);
+      return true;
+
+    } catch (err) {
+      console.log("OTP Email Error:", err);
       return false;
     }
   }
+
 
   public async verifyAndDeleteEmailOtp(
     input: string,
