@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <title>Your OTP Code</title>
+  </head>
+  <body
+    style="
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    "
+  >
+    <div
+      style="
+        max-width: 520px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 28px;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+      "
+    >
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 24px">
+        <h1
+          style="
+            color: #2563eb;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            text-transform: capitalize;
+          "
+        >
+          🔐 Your Login OTP, {{name}}
+        </h1>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 10px; font-size: 16px; line-height: 1.6">
+        <p style="margin-bottom: 12px; color: #334155">
+          Dear <strong>{{name}}</strong>,
+        </p>
+
+        <p style="margin-bottom: 20px; color: #334155">
+          Here is your One-Time Password (OTP) to log in to
+          <strong style="color: #2563eb">Naukri Score</strong>:
+        </p>
+
+        <!-- OTP Box -->
+        <div
+          style="
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            color: #ffffff;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            padding: 18px;
+            border-radius: 8px;
+            letter-spacing: 0.12rem;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+          "
+        >
+          {{otp}}
+        </div>
+
+        <p style="margin-bottom: 24px; color: #475569">
+          This OTP is valid for the next <strong>3 minutes</strong>. Please do
+          not share it with anyone for your security.
+        </p>
+
+        <p style="margin-bottom: 6px; color: #475569">Best Regards,</p>
+        <p
+          style="color: #2563eb; font-weight: bold; font-size: 18px; margin: 0"
+        >
+          The Naukri Score Team
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p
+      style="
+        text-align: center;
+        font-size: 13px;
+        color: #94a3b8;
+        margin-top: 24px;
+      "
+    >
+      © 2025 Naukri Score. All rights reserved.
+    </p>
+  </body>
+</html>

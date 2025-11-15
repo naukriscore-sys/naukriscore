@@ -1,0 +1,16 @@
+{
+  "name": "@repo/async-context",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./async-context": "./index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@repo/typescript-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

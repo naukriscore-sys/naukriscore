@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  employee
+  employer
+  admin
+}
+
+enum Severity {
+  veryLow
+  low
+  belowAverage
+  medium
+  aboveModerate
+  high
+  veryHigh
+  elite
+}
+
+enum chatRole {
+  user
+  assistant
+}
+
+enum chatType {
+  feedback
+  profile
+}
+
+enum JobStatus {
+  pending
+  failed
+  success
+}
+
+enum DocumentType {
+  profilePhoto
+  aadhaarCard
+  panCard
+  offerLetter
+  salarySlip
+  relievingLetter
+  declarationForm
+}
+
+model Employee {
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
+  number       String  @unique
+  password     String
+  profileImg   String?
+  aadharNumber String  @unique
+  isVerified   Boolean @default(false)
+  isAvailable  Boolean @default(true)
+  score        Int     @default(0)
+  chatId       String? @default(uuid())
+
+  profileDesc String?
+  languages   String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  summary         Summary[]
+  feedbackSummary FeedbackSummary[]
+  feedback        Feedback[]
+  chats           Chats[]
+  documents       Documents[]
+
+  resumeDetails ResumeDetails?
+}
+
+// employee resume and its details -------------------------------
+model ResumeDetails {
+  id          String  @id @default(uuid())
+  designation String?
+  resumeUrl   String
+
+  status JobStatus
+
+  personalInfo PersonalInfo?
+
+  skills      Skill[]
+  educations  Education[]
+  experiences Experience[]
+  projects    Project[]
+  socialLinks SocialLink[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employeeId String   @unique
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model PersonalInfo {
+  id       String        @id @default(uuid())
+  fullName String
+  email    String
+  phone    String
+  resume   ResumeDetails @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId String        @unique
+}
+
+model Education {
+  id          String        @id @default(uuid())
+  degree      String?
+  institution String?
+  year        String?
+  type        String?
+  resume      ResumeDetails @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId    String
+}
+
+model Experience {
+  id          String        @id @default(uuid())
+  company     String?
+  title       String?
+  tenure      String?
+  startDate   String?
+  endDate     String?
+  description String?
+  liveLink    String?
+  resume      ResumeDetails @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId    String
+}
+
+model Skill {
+  id       String        @id @default(uuid())
+  name     String?
+  resume   ResumeDetails @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId String
+}
+
+model Project {
+  id           String        @id @default(uuid())
+  name         String?
+  description  String?
+  liveLink     String?
+  technologies String[]
+  resume       ResumeDetails @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId     String
+}
+
+model SocialLink {
+  id       String        @id @default(uuid())
+  key      String?
+  value    String?
+  resume   ResumeDetails @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId String
+}
+
+// --------------------------------------------------
+
+model Documents {
+  id      String       @id @default(uuid())
+  role    Role
+  type    DocumentType
+  url     String
+  remarks String?
+  data    Json?
+  status  JobStatus
+
+  employeeId String
+  employee   Employee @relation(references: [id], fields: [employeeId], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Feedback {
+  id           String @id @default(uuid())
+  updatedScore Int
+  prevScore    Int
+
+  employeeId String
+  employee   Employee @relation(references: [id], fields: [employeeId], onDelete: Cascade)
+
+  employerId String
+  employer   Employer @relation(references: [id], fields: [employerId])
+
+  feedbackSummary FeedbackSummary[]
+}
+
+model Summary {
+  id        String  @id @default(uuid())
+  key       String
+  label     String
+  belongsTo String?
+  points    Int
+
+  employeeId String
+  employee   Employee @relation(references: [id], fields: [employeeId], onDelete: Cascade)
+}
+
+model FeedbackSummary {
+  id           String   @id @default(uuid())
+  key          String
+  label        String
+  points       Int
+  updatedScore Int
+  prevScore    Int
+  severity     Severity
+
+  employeeId String
+  employee   Employee @relation(references: [id], fields: [employeeId], onDelete: Cascade)
+
+  feedbackId String
+  feedback   Feedback @relation(references: [id], fields: [feedbackId])
+}
+
+model Employer {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  number            String   @unique
+  password          String
+  profileImg        String?
+  companyName       String   @unique
+  positionInCompany String
+  companyWebsite    String   @unique
+  companyAddress    String   @unique
+  companyCinNumber  String   @unique
+  companyPanNumber  String   @unique
+  companyGstNumber  String?  @unique
+  role              Role     @default(employer)
+  isVerified        Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  feedback Feedback[]
+  chats    Chats[]
+}
+
+model Chats {
+  id      String   @id @default(uuid())
+  message String
+  role    chatRole
+  type    chatType
+
+  chatId String
+
+  employeeId String?
+  employee   Employee? @relation(references: [id], fields: [employeeId], onDelete: Cascade)
+
+  employerId String?
+  employer   Employer? @relation(references: [id], fields: [employerId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Otp {
+  input     String   @id
+  otp       String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
