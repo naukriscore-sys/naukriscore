@@ -1,7 +1,7 @@
 import express, { type Response } from "express";
-import { routes } from "./routes/index.ts";
+import { routes } from "./routes/index";
 import swaggerUi from "swagger-ui-express";
-import { openAiSpecFile } from "../openapispecfile.ts";
+import { openAiSpecFile } from "../openapispecfile";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { otpStore } from "@repo/otp/otpStore";
