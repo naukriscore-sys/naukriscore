@@ -51,4 +51,6 @@ app.post("/test-email", async (_, res: Response): Promise<any> => {
   }
 });
 
-app.listen(PORT, () => console.log("server is running on " + PORT));
+// app.listen(PORT, () => console.log("server is running on " + PORT));
+
+export default app;
