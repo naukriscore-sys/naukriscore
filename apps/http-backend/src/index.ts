@@ -25,8 +25,19 @@ app.use(express.json());
 
 app.use("/api/v2/employee", routes);
 
-app.get("/health", (_, res) => {
-  res.send("Backend is running");
+app.get('/', async (req, res) => {
+  res.send("It's a Beautiful day");
+});
+
+app.get('/health', async (req, res) => {
+  const start = Date.now();
+  const healthcheck = {
+    uptime: process.uptime(),
+    message: 'OK',
+    timestamp: new Date(),
+    responseTime: `${Date.now() - start}ms`,
+  };
+  res.status(200).json(healthcheck);
 });
 
 // Serve Swagger UI at /api-docs
