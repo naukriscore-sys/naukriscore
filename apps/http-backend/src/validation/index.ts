@@ -1,1 +1,1 @@
-export * from './root.ts'
+export * from './root.js'

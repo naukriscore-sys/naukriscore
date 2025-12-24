@@ -1,3 +1,3 @@
-export * from './responsePlate.ts'
-export * from './password.ts'
-export * from './token.ts'
+export * from './responsePlate.js'
+export * from './password.js'
+export * from './token.js'
