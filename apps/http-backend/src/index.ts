@@ -11,7 +11,7 @@ const PORT = 5001;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://naukriscore.com"],
+    origin: ["http://localhost:3000", "https://www.naukriscore.com"],
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
